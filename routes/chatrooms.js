@@ -4,29 +4,43 @@ import Chatroom from '../models/Chatroom.js'
 const router = express.Router()
 
 /* Creating a Chatroom by members userId's */
-router.post('/',async (req,res)=>{
-    const newChatroom = new Chatroom({
-        members : [req.body.senderId, req.body.receiverId],
-    });
-    try{
+router.post('/', async (req, res) => {
+    try {
+        const chatrooms = await Chatroom.find({
+            $and: [
+                {
+                    members: { $in: [req.body.senderId] }
+                },
+                {
+                    members: { $in: [req.body.receiverId] }
+                }
+            ]
+        })
+        if (chatrooms.length > 0) {
+            res.status(409).json();
+            return;
+        }
+        const newChatroom = new Chatroom({
+            members: [req.body.senderId, req.body.receiverId],
+        });
         const savedChatroom = await newChatroom.save();
         res.status(200).json(savedChatroom);
     }
-    catch(err){
+    catch (err) {
         console.log(err)
         res.status(500).json(err)
     }
 })
 
 /* Getting Chatrooms of a Particular user based on UserId*/
-router.get('/:userId',async (req,res)=>{
-    try{
+router.get('/:userId', async (req, res) => {
+    try {
         const chatrooms = await Chatroom.find({
-            members:{$in:[req.params.userId]},
+            members: { $in: [req.params.userId] },
         })
         res.status(200).json(chatrooms)
     }
-    catch(err){
+    catch (err) {
         console.log(err)
         res.status(500).json(err)
     }

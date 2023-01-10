@@ -81,14 +81,11 @@ app.use("/photo", express.static("images"));
 mongoose.connect(
   process.env.MONGO_URL,
   {
-    useCreateIndex: true,
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  },
-  () => {
-    console.log("MONGODB CONNECTED");
-  }
-);
+  })
+  .then(()=>console.log('Database Connected'))
+  .catch(e=>console.log(e));
 
 app.get("/",(req,res)=>{
   res.send("Welcome to the AmigoChat API")
